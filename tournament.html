@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tournament Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0F1B14;color:#F4F1E8;font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh;padding:20px 16px 60px}
+.wrap{max-width:500px;margin:0 auto}
+.eyebrow{text-align:center;font-size:11px;letter-spacing:.14em;color:#9FC93D;font-weight:700;margin-bottom:4px}
+h1{text-align:center;font-family:Georgia,serif;font-size:28px;margin-bottom:4px}
+.sub{text-align:center;color:#B9C4B2;font-size:13px;margin-bottom:20px}
+.card{background:#16261C;border:1px solid #2A3D2F;border-radius:14px;padding:18px;margin-bottom:14px}
+.card-title{font-family:Georgia,serif;font-size:16px;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.lbl{font-size:13px;color:#B9C4B2;min-width:90px}
+.stepper{display:flex;align-items:center;border:1px solid #2A3D2F;border-radius:8px;overflow:hidden}
+.step-btn{background:#0F1B14;border:none;color:#F4F1E8;padding:8px 18px;font-size:22px;cursor:pointer;line-height:1;touch-action:manipulation}
+.step-val{padding:8px 14px;font-size:15px;font-weight:700;min-width:40px;text-align:center}
+.hint{font-size:12px;color:#6E8169}
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.name-inp{background:#0F1B14;border:1px solid #2A3D2F;border-radius:8px;padding:10px 11px;color:#F4F1E8;font-size:14px;width:100%;outline:none;-webkit-appearance:none}
+.name-inp:focus{border-color:#9FC93D}
+.name-inp.hidden{display:none}
+.divider{height:1px;background:#2A3D2F;margin:14px 0}
+.btn{background:#9FC93D;color:#0F1B14;border:none;border-radius:8px;padding:13px;font-weight:700;font-size:15px;width:100%;cursor:pointer;touch-action:manipulation}
+.btn-outline{background:transparent;border:1px solid #9FC93D;color:#9FC93D;border-radius:8px;padding:10px;font-weight:700;font-size:13px;width:100%;cursor:pointer;margin-top:8px;touch-action:manipulation}
+.btn-link{background:none;border:none;color:#9FC93D;font-size:12px;cursor:pointer;text-decoration:underline;display:block;margin:10px auto 0;text-align:center}
+.tabs{display:flex;gap:6px;margin-bottom:14px;background:#16261C;border-radius:10px;padding:4px;border:1px solid #2A3D2F}
+.tab{flex:1;padding:10px 4px;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;background:transparent;color:#B9C4B2;touch-action:manipulation}
+.tab.active{background:#9FC93D;color:#0F1B14}
+.panel{display:none}.panel.active{display:block}
+.round-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.nav-btn{background:transparent;border:1px solid #2A3D2F;color:#F4F1E8;border-radius:8px;padding:9px 16px;font-size:14px;cursor:pointer;touch-action:manipulation}
+.nav-btn:disabled{opacity:.35}
+.round-lbl{text-align:center}
+.round-big{font-family:Georgia,serif;font-size:20px;font-weight:700}
+.round-small{font-size:12px;color:#B9C4B2}
+.out-badge{background:rgba(255,255,255,.04);border:1px solid #2A3D2F;border-radius:8px;padding:8px 11px;font-size:12px;color:#6E8169;margin-bottom:12px}
+.out-badge strong{color:#F4F1E8}
+.court-card{background:#0F1B14;border:1px solid #2A3D2F;border-radius:10px;padding:14px;margin-bottom:10px}
+.court-lbl{font-size:11px;color:#9FC93D;font-weight:700;letter-spacing:.1em;margin-bottom:10px}
+.team-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0}
+.team-name{font-size:13px;font-weight:600;flex:1}
+.score-inp{width:62px;background:#16261C;border:1px solid #2A3D2F;border-radius:6px;color:#F4F1E8;font-size:17px;text-align:center;padding:8px 4px;outline:none;-webkit-appearance:none}
+.score-inp:focus{border-color:#9FC93D}
+.vs{font-size:11px;color:#6E8169;text-align:center;margin:2px 0}
+.sync-bar{text-align:center;font-size:11px;min-height:18px;margin-bottom:4px;color:transparent}
+.sync-bar.ok{color:#9FC93D}.sync-bar.err{color:#E08B6B}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10px;letter-spacing:.08em;color:#6E8169;border-bottom:1px solid #2A3D2F;padding:0 6px 7px}
+td{padding:8px 6px;border-bottom:1px solid #1D2C22;font-size:12px}
+.tdname{font-size:13px;font-weight:600}
+.leader{background:rgba(159,201,61,.08)}
+.dpos{color:#9FC93D;font-weight:600}.dneg{color:#E08B6B;font-weight:600}
+.hist-card{background:#0F1B14;border:1px solid #2A3D2F;border-radius:10px;padding:12px;margin-bottom:10px}
+.hround{font-size:10px;color:#9FC93D;font-weight:700;letter-spacing:.1em;margin-bottom:8px}
+.hteam{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:3px 0}
+.hscore{font-size:18px;font-weight:700}
+.wc{color:#9FC93D}.lc{color:#B9C4B2;font-weight:400}
+.empty{color:#B9C4B2;font-size:13px;text-align:center;padding:20px 0}
+.sheets-note{text-align:center;font-size:12px;color:#6E8169;margin-top:4px}
+#setup-screen{} #play-screen{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <p class="eyebrow">TOURNAMENT TRACKER</p>
+  <h1>Round Robin</h1>
+  <p class="sub">1 court · rotating partners & opponents</p>
+  <div class="card">
+    <div class="card-title">Setup</div>
+    <div class="row">
+      <span class="lbl">Players</span>
+      <div class="stepper">
+        <button class="step-btn" onclick="changeCount(-1)">−</button>
+        <span class="step-val" id="pc-val">6</span>
+        <button class="step-btn" onclick="changeCount(1)">+</button>
+      </div>
+      <span class="hint">(4–12)</span>
+    </div>
+    <div class="row">
+      <span class="lbl">Rounds</span>
+      <div class="stepper">
+        <button class="step-btn" onclick="changeRounds(-1)">−</button>
+        <span class="step-val" id="rc-val">7</span>
+        <button class="step-btn" onclick="changeRounds(1)">+</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="card-title">Player Names</div>
+    <div class="name-grid" id="name-grid">
+      <input class="name-inp" id="n0" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 1" value="Player 1">
+      <input class="name-inp" id="n1" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 2" value="Player 2">
+      <input class="name-inp" id="n2" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 3" value="Player 3">
+      <input class="name-inp" id="n3" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 4" value="Player 4">
+      <input class="name-inp" id="n4" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 5" value="Player 5">
+      <input class="name-inp" id="n5" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 6" value="Player 6">
+      <input class="name-inp hidden" id="n6" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 7" value="Player 7">
+      <input class="name-inp hidden" id="n7" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 8" value="Player 8">
+      <input class="name-inp hidden" id="n8" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 9" value="Player 9">
+      <input class="name-inp hidden" id="n9" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 10" value="Player 10">
+      <input class="name-inp hidden" id="n10" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 11" value="Player 11">
+      <input class="name-inp hidden" id="n11" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Player 12" value="Player 12">
+    </div>
+    <button class="btn" onclick="startTournament()">Start Tournament</button>
+  </div>
+  <p class="sheets-note">🔗 Linked to Google Sheets</p>
+</div>
+
+<!-- PLAY SCREEN -->
+<div id="play-screen">
+  <p class="eyebrow">TOURNAMENT TRACKER</p>
+  <h1>Round Robin</h1>
+  <div class="sync-bar" id="sync-bar"></div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-play" onclick="switchTab('play')">▶ Play</button>
+    <button class="tab" id="tab-rankings" onclick="switchTab('rankings')">🏆 Rankings</button>
+    <button class="tab" id="tab-history" onclick="switchTab('history')">📋 History</button>
+  </div>
+
+  <div class="panel active" id="panel-play">
+    <div class="card">
+      <div class="round-nav">
+        <button class="nav-btn" id="prev-btn" onclick="goRound(-1)">← Prev</button>
+        <div class="round-lbl">
+          <div class="round-big" id="round-label">Round 1</div>
+          <div class="round-small" id="round-of">of 7</div>
+        </div>
+        <button class="nav-btn" id="next-btn" onclick="goRound(1)">Next →</button>
+      </div>
+      <div class="out-badge" id="out-badge" style="display:none">Sitting out: <strong id="out-names"></strong></div>
+      <div class="court-card">
+        <div class="court-lbl">COURT</div>
+        <div class="team-row">
+          <div class="team-name" id="team-a-name"></div>
+          <input class="score-inp" id="score-a" type="tel" placeholder="0" oninput="onScore('a',this.value)">
+        </div>
+        <div class="vs">vs</div>
+        <div class="team-row">
+          <div class="team-name" id="team-b-name"></div>
+          <input class="score-inp" id="score-b" type="tel" placeholder="0" oninput="onScore('b',this.value)">
+        </div>
+      </div>
+      <button class="btn-outline" onclick="addRound()">+ Add a Round</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-rankings">
+    <div class="card">
+      <div class="card-title">Live Rankings</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Player</th><th>W</th><th>L</th><th>Diff</th><th>Earned</th><th>Allowed</th></tr></thead>
+          <tbody id="rankings-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-history">
+    <div class="card">
+      <div class="card-title">Match History</div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <button class="btn-link" onclick="backToSetup()">← Back to Setup</button>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+var SHEETS_URL="https://script.google.com/macros/s/AKfycbyUXLH_CrQ6hWfeb9QIetbYeLJ4AFe0nP6W6MAFWOlrToZnnSGhWMWC7AjFZ_9PK6w3wA/exec";
+
+var playerCount=6, roundCount=7;
+var names=[], schedule=[], scores={}, currentRound=0;
+
+function changeCount(d){
+  var n=Math.max(4,Math.min(12,playerCount+d));
+  playerCount=n;
+  document.getElementById('pc-val').textContent=n;
+  for(var i=0;i<12;i++){
+    var el=document.getElementById('n'+i);
+    if(el) el.classList.toggle('hidden', i>=n);
+  }
+}
+
+function changeRounds(d){
+  roundCount=Math.max(1,roundCount+d);
+  document.getElementById('rc-val').textContent=roundCount;
+}
+
+function buildSchedule(n,nr){
+  var pc=[],oc=[],played=new Array(n).fill(0),rounds=[];
+  for(var i=0;i<n;i++){pc.push(new Array(n).fill(0));oc.push(new Array(n).fill(0));}
+  for(var r=0;r<nr;r++){
+    var best=null,bs=Infinity;
+    for(var a=0;a<n;a++)for(var b=a+1;b<n;b++)for(var c=0;c<n;c++){
+      if(c===a||c===b)continue;
+      for(var d=c+1;d<n;d++){
+        if(d===a||d===b)continue;
+        var s=(pc[a][b]+pc[c][d])*10+(oc[a][c]+oc[a][d]+oc[b][c]+oc[b][d])*5+(played[a]+played[b]+played[c]+played[d]);
+        if(s<bs){bs=s;best={teamA:[a,b],teamB:[c,d]};}
+      }
+    }
+    if(!best)break;
+    rounds.push(best);
+    var a=best.teamA[0],b=best.teamA[1],c=best.teamB[0],d=best.teamB[1];
+    pc[a][b]++;pc[b][a]++;pc[c][d]++;pc[d][c]++;
+    [a,b].forEach(function(x){[c,d].forEach(function(y){oc[x][y]++;oc[y][x]++;});});
+    [a,b,c,d].forEach(function(p){played[p]++;});
+  }
+  return rounds;
+}
+
+function startTournament(){
+  names=[];
+  for(var i=0;i<playerCount;i++){
+    var el=document.getElementById('n'+i);
+    names.push(el&&el.value.trim()?el.value.trim():'Player '+(i+1));
+  }
+  schedule=buildSchedule(playerCount,roundCount);
+  scores={};currentRound=0;
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('play-screen').style.display='';
+  document.getElementById('round-of').textContent='of '+roundCount;
+  showRound();
+}
+
+function backToSetup(){
+  document.getElementById('setup-screen').style.display='';
+  document.getElementById('play-screen').style.display='none';
+}
+
+function switchTab(id){
+  ['play','rankings','history'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+    document.getElementById('panel-'+t).classList.toggle('active',t===id);
+  });
+  if(id==='rankings')updateRankings();
+  if(id==='history')updateHistory();
+}
+
+function goRound(d){
+  var nr=currentRound+d;
+  if(nr<0||nr>=schedule.length)return;
+  currentRound=nr;
+  showRound();
+}
+
+function showRound(){
+  var m=schedule[currentRound];
+  if(!m)return;
+  document.getElementById('round-label').textContent='Round '+(currentRound+1);
+  document.getElementById('round-of').textContent='of '+roundCount;
+  document.getElementById('prev-btn').disabled=currentRound===0;
+  document.getElementById('next-btn').disabled=currentRound===schedule.length-1;
+
+  var active=m.teamA.concat(m.teamB);
+  var out=[];
+  for(var i=0;i<playerCount;i++){if(active.indexOf(i)<0)out.push(names[i]);}
+  var ob=document.getElementById('out-badge');
+  if(out.length>0){ob.style.display='';document.getElementById('out-names').textContent=out.join(', ');}
+  else{ob.style.display='none';}
+
+  document.getElementById('team-a-name').textContent=m.teamA.map(function(p){return names[p];}).join(' & ');
+  document.getElementById('team-b-name').textContent=m.teamB.map(function(p){return names[p];}).join(' & ');
+
+  var e=scores[currentRound]||{};
+  document.getElementById('score-a').value=e.a!==undefined?e.a:'';
+  document.getElementById('score-b').value=e.b!==undefined?e.b:'';
+}
+
+function onScore(side,val){
+  if(!scores[currentRound])scores[currentRound]={};
+  scores[currentRound][side]=val;
+  syncToSheets();
+}
+
+function addRound(){
+  roundCount++;
+  schedule=buildSchedule(playerCount,roundCount);
+  document.getElementById('round-of').textContent='of '+roundCount;
+  document.getElementById('next-btn').disabled=currentRound===schedule.length-1;
+}
+
+function getStats(){
+  var t=Array.from({length:playerCount},function(){return{pts:0,allowed:0,wins:0,losses:0};});
+  schedule.forEach(function(m,r){
+    var e=scores[r]||{};
+    if(e.a===undefined||e.a===''||e.b===undefined||e.b==='')return;
+    var a=parseFloat(e.a),b=parseFloat(e.b);
+    if(isNaN(a)||isNaN(b))return;
+    m.teamA.forEach(function(p){t[p].pts+=a;t[p].allowed+=b;if(a>b)t[p].wins++;else if(a<b)t[p].losses++;});
+    m.teamB.forEach(function(p){t[p].pts+=b;t[p].allowed+=a;if(b>a)t[p].wins++;else if(b<a)t[p].losses++;});
+  });
+  return t;
+}
+
+function getRankings(){
+  var st=getStats();
+  return names.map(function(n,i){return{name:n,i:i,wins:st[i].wins,losses:st[i].losses,pts:st[i].pts,allowed:st[i].allowed,diff:st[i].pts-st[i].allowed};})
+    .sort(function(x,y){return y.wins-x.wins||y.diff-x.diff||y.pts-x.pts||x.allowed-y.allowed;});
+}
+
+function updateRankings(){
+  var tbody=document.getElementById('rankings-body');
+  tbody.innerHTML='';
+  getRankings().forEach(function(r,i){
+    var diff=r.diff>0?'+'+r.diff:''+r.diff;
+    var tr=document.createElement('tr');
+    if(i===0)tr.className='leader';
+    tr.innerHTML='<td>'+(i+1)+'</td><td class="tdname">'+r.name+'</td><td>'+r.wins+'</td><td>'+r.losses+'</td>'+
+      '<td class="'+(r.diff>0?'dpos':r.diff<0?'dneg':'')+'">'+diff+'</td><td>'+r.pts+'</td><td>'+r.allowed+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateHistory(){
+  var list=document.getElementById('history-list');
+  list.innerHTML='';
+  var any=false;
+  schedule.forEach(function(m,r){
+    var e=scores[r]||{};
+    if(e.a===undefined||e.a===''||e.b===undefined||e.b==='')return;
+    var a=parseFloat(e.a),b=parseFloat(e.b);
+    if(isNaN(a)||isNaN(b))return;
+    any=true;
+    var aW=a>b,bW=b>a;
+    var d=document.createElement('div');d.className='hist-card';
+    d.innerHTML='<div class="hround">ROUND '+(r+1)+'</div>'+
+      '<div class="hteam"><div class="team-name '+(aW?'wc':'lc')+'">'+(aW?'🏆 ':'')+m.teamA.map(function(p){return names[p];}).join(' & ')+'</div><div class="hscore '+(aW?'wc':'lc')+'">'+a+'</div></div>'+
+      '<div class="vs">vs</div>'+
+      '<div class="hteam"><div class="team-name '+(bW?'wc':'lc')+'">'+(bW?'🏆 ':'')+m.teamB.map(function(p){return names[p];}).join(' & ')+'</div><div class="hscore '+(bW?'wc':'lc')+'">'+b+'</div></div>'+
+      (!aW&&!bW?'<div style="font-size:11px;color:#B9C4B2;text-align:center;margin-top:4px">Tie</div>':'');
+    list.appendChild(d);
+  });
+  if(!any){list.innerHTML='<p class="empty">No completed matches yet.</p>';}
+}
+
+function syncToSheets(){
+  var history=schedule.map(function(m,r){
+    var e=scores[r]||{};
+    if(e.a===undefined||e.a===''||e.b===undefined||e.b==='')return null;
+    var a=parseFloat(e.a),b=parseFloat(e.b);
+    if(isNaN(a)||isNaN(b))return null;
+    return{round:r+1,teamA:m.teamA.map(function(p){return names[p];}).join(' & '),scoreA:a,scoreB:b,
+      teamB:m.teamB.map(function(p){return names[p];}).join(' & '),
+      winner:a>b?m.teamA.map(function(p){return names[p];}).join(' & '):b>a?m.teamB.map(function(p){return names[p];}).join(' & '):'Tie'};
+  }).filter(Boolean);
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({history:history,rankings:getRankings()})})
+    .then(function(){showSync('ok');}).catch(function(){showSync('err');});
+}
+
+function showSync(s){
+  var el=document.getElementById('sync-bar');
+  el.textContent=s==='ok'?'✓ Synced to Google Sheets':'⚠ Sync failed';
+  el.className='sync-bar '+(s==='ok'?'ok':'err');
+  setTimeout(function(){el.textContent='';el.className='sync-bar';},2500);
+}
+</script>
+</body>
+</html>
