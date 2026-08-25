@@ -681,10 +681,75 @@ function confirmBack(){document.getElementById('confirm-modal').style.display='f
 function closeModal(){document.getElementById('confirm-modal').style.display='none';}
 function goBack(){
   closeModal();
+  archiveToSheets();
   scores={};schedule=[];currentRound=0;
   document.getElementById('play-screen').style.display='none';
   document.getElementById('setup-screen').style.display='block';
   clearSave();
+}
+
+function getPlayerStats(){
+  var isTeam=(mode==='static')||(mode==='mixed'&&teams.length>0);
+  var st=getStats();
+  var playerStats=[];
+  if(isTeam){
+    // Each player on a team gets the team's stats
+    var teamSt=getTeamStats();
+    teams.forEach(function(tm,ti){
+      tm.players.forEach(function(p){
+        playerStats.push({name:p,matchWins:teamSt[ti].wins,matchLosses:teamSt[ti].losses,
+          gameWins:teamSt[ti].wins,gameLosses:teamSt[ti].losses,
+          ptsEarned:teamSt[ti].pts,ptsAllowed:teamSt[ti].allowed});
+      });
+    });
+  } else {
+    names.slice(0,playerCount).forEach(function(name,i){
+      playerStats.push({name:name,matchWins:st[i].wins,matchLosses:st[i].losses,
+        gameWins:st[i].wins,gameLosses:st[i].losses,
+        ptsEarned:st[i].pts,ptsAllowed:st[i].allowed});
+    });
+  }
+  return playerStats;
+}
+
+function getTeamStats(){
+  if(!teams||teams.length===0)return[];
+  var t=teams.map(function(){return{pts:0,allowed:0,wins:0,losses:0};});
+  schedule.forEach(function(round,r){
+    round.forEach(function(m,c){
+      var e=(scores[r]&&scores[r][c])||{};
+      if(e.a===undefined||e.a===''||e.b===undefined||e.b==='')return;
+      var a=parseFloat(e.a),b=parseFloat(e.b);
+      if(isNaN(a)||isNaN(b))return;
+      t[m.teamA].pts+=a;t[m.teamA].allowed+=b;
+      t[m.teamB].pts+=b;t[m.teamB].allowed+=a;
+      if(a>b){t[m.teamA].wins++;t[m.teamB].losses++;}
+      else if(b>a){t[m.teamB].wins++;t[m.teamA].losses++;}
+    });
+  });
+  return t;
+}
+
+function archiveToSheets(){
+  var history=[];
+  schedule.forEach(function(round,r){
+    round.forEach(function(m,c){
+      var e=(scores[r]&&scores[r][c])||{};
+      if(e.a===undefined||e.a===''||e.b===undefined||e.b==='')return;
+      var a=parseFloat(e.a),b=parseFloat(e.b);
+      if(isNaN(a)||isNaN(b))return;
+      var aName=Array.isArray(m.teamA)?names[m.teamA[0]]+' & '+names[m.teamA[1]]:teams[m.teamA].name;
+      var bName=Array.isArray(m.teamB)?names[m.teamB[0]]+' & '+names[m.teamB[1]]:teams[m.teamB].name;
+      history.push({round:r+1,court:c+1,teamA:aName,scoreA:a,scoreB:b,teamB:bName,
+        winner:a>b?aName:b>a?bName:'Tie'});
+    });
+  });
+  var rankings=getRankings().map(function(r,i){return{rank:i+1,name:r.label,wins:r.wins,losses:r.losses,diff:r.diff,pts:r.pts,allowed:r.allowed};});
+  var playerStats=getPlayerStats();
+  var modeLabel=mode==='rotating'?'Rotating':mode==='static'?'Fixed Teams':'Mixed Doubles';
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({archive:true,label:modeLabel+' Tournament',history:history,rankings:rankings,playerStats:playerStats})})
+    .catch(function(){});
 }
 
 // ── Google Sheets Sync ────────────────────────────────────────────────
