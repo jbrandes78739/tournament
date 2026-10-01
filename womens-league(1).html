@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CNP Women's 3 Person League</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0A0E1A;color:#F4F1E8;font-family:'Helvetica Neue',Arial,sans-serif;min-height:100vh;padding:16px 14px 60px}
+.wrap{max-width:580px;margin:0 auto}
+.eyebrow{text-align:center;font-size:10px;letter-spacing:.16em;color:#D6336C;font-weight:700;margin-bottom:4px}
+h1{text-align:center;font-family:Georgia,serif;font-size:22px;margin-bottom:2px}
+.sub{text-align:center;color:#8A90A8;font-size:12px;margin-bottom:16px}
+.card{background:#141828;border:1px solid #252A3E;border-radius:12px;padding:16px;margin-bottom:12px}
+.ct{font-family:Georgia,serif;font-size:15px;margin-bottom:12px}
+.divider{height:1px;background:#252A3E;margin:12px 0}
+.team-setup{background:#0D1120;border:1px solid #252A3E;border-radius:10px;padding:14px;margin-bottom:10px}
+.team-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.team-num{background:#D6336C;color:#0A0E1A;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px}
+.tinp{background:#0A0E1A;border:1px solid #252A3E;border-radius:7px;padding:8px 10px;color:#F4F1E8;font-size:13px;flex:1;outline:none;-webkit-appearance:none}
+.tinp:focus{border-color:#D6336C}
+.player-col{display:flex;flex-direction:column;gap:6px}
+.btn{background:#D6336C;color:#0A0E1A;border:none;border-radius:8px;padding:13px;font-weight:700;font-size:14px;width:100%;cursor:pointer;touch-action:manipulation}
+.btn-outline{background:transparent;border:1px solid #D6336C;color:#D6336C;border-radius:8px;padding:9px;font-weight:700;font-size:13px;width:100%;cursor:pointer;touch-action:manipulation;margin-top:6px}
+.btn-danger{background:transparent;border:1px solid #E08B6B;color:#E08B6B;border-radius:8px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;touch-action:manipulation}
+.tabs{display:flex;gap:5px;margin-bottom:12px;background:#141828;border-radius:10px;padding:4px;border:1px solid #252A3E}
+.tab{flex:1;padding:9px 4px;border:none;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;background:transparent;color:#8A90A8;touch-action:manipulation}
+.tab.active{background:#D6336C;color:#0A0E1A}
+.panel{display:none}.panel.active{display:block}
+.week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wbtn{background:transparent;border:1px solid #252A3E;color:#F4F1E8;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;touch-action:manipulation}
+.wbtn:disabled{opacity:.3}
+.wlbl{text-align:center}
+.wbig{font-family:Georgia,serif;font-size:17px;font-weight:700}
+.wsm{font-size:11px;color:#8A90A8}
+.match-card{background:#0D1120;border:1px solid #252A3E;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.match-header{display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer;touch-action:manipulation}
+.match-teams{font-size:13px;font-weight:600;flex:1}
+.match-court{font-size:10px;color:#D6336C;font-weight:700;letter-spacing:.06em;display:block;margin-bottom:3px}
+.match-vs{color:#555B70;font-size:11px;margin:0 6px}
+.match-result{font-size:13px;font-weight:700;color:#D6336C;min-width:40px;text-align:right}
+.match-result.pending{color:#555B70;font-weight:400}
+.match-body{display:none;padding:0 12px 12px;border-top:1px solid #252A3E}
+.match-body.open{display:block;padding-top:12px}
+.sub-row{background:rgba(255,255,255,0.03);border-radius:8px;padding:8px;margin-bottom:10px}
+.sub-title{font-size:10px;color:#8A90A8;font-weight:700;letter-spacing:.08em;margin-bottom:6px}
+.sub-line{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.sub-line label{font-size:11px;color:#8A90A8;min-width:60px}
+.sub-line select,.sub-line input{background:#141828;border:1px solid #252A3E;border-radius:5px;color:#F4F1E8;font-size:11px;padding:4px 6px;flex:1;min-width:0}
+.game-block{margin-bottom:12px;border-bottom:1px solid #1a1f35;padding-bottom:10px}
+.game-title{font-size:11px;color:#8A90A8;font-weight:700;margin-bottom:6px}
+.game-auto{font-size:10px;color:#D6336C;font-weight:600;margin-left:6px}
+.lineup-sel{display:flex;gap:4px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.lineup-sel select{background:#141828;border:1px solid #252A3E;border-radius:5px;color:#F4F1E8;font-size:11px;padding:5px;flex:1;min-width:0}
+.lineup-sel .vs-lbl{color:#555B70;font-size:11px}
+.winner-sel{display:flex;gap:6px;margin-bottom:8px}
+.wteam-btn{flex:1;background:#141828;border:1px solid #252A3E;border-radius:6px;padding:8px 6px;color:#B9C4B2;font-size:11px;font-weight:600;cursor:pointer;touch-action:manipulation;text-align:center}
+.wteam-btn.sel-a{background:#2E7D32;border-color:#2E7D32;color:#fff}
+.wteam-btn.sel-b{background:#2E7D32;border-color:#2E7D32;color:#fff}
+.score-entry{display:none}
+.score-entry.show{display:block}
+.score-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.score-line label{font-size:11px;color:#8A90A8}
+.gsinp{width:60px;background:#141828;border:1px solid #252A3E;border-radius:5px;color:#F4F1E8;font-size:14px;text-align:center;padding:7px 2px;outline:none;-webkit-appearance:none}
+.gsinp:focus{border-color:#D6336C}
+.match-summary{font-size:12px;text-align:center;padding:8px 0;color:#8A90A8}
+.match-winner{color:#D6336C;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10px;letter-spacing:.08em;color:#555B70;border-bottom:1px solid #252A3E;padding:0 5px 7px}
+td{padding:7px 5px;border-bottom:1px solid #1a1f35;font-size:12px}
+.tdname{font-size:13px;font-weight:600}
+.leader{background:rgba(255,215,0,.08)}
+.dpos{color:#4CAF50;font-weight:600}.dneg{color:#E08B6B;font-weight:600}
+.hist-match{background:#0D1120;border:1px solid #252A3E;border-radius:10px;padding:12px;margin-bottom:10px}
+.hweek{font-size:10px;color:#D6336C;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
+.hteams{font-size:13px;font-weight:600;margin-bottom:6px}
+.hgame{font-size:11px;color:#8A90A8;line-height:1.6;margin-bottom:2px}
+.hwinner{color:#D6336C;font-weight:700;font-size:12px;margin-top:5px}
+.empty{color:#8A90A8;font-size:13px;text-align:center;padding:20px 0}
+.sync-bar{text-align:center;font-size:11px;min-height:16px;margin-bottom:4px}
+.sync-ok{color:#4CAF50}.sync-err{color:#E08B6B}
+.medal-banner{background:linear-gradient(135deg,#1a1f35,#0D1120);border:1px solid #FFD700;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#141828;border:1px solid #252A3E;border-radius:14px;padding:24px;max-width:300px;width:90%;text-align:center}
+.modal h3{font-family:Georgia,serif;font-size:18px;margin-bottom:10px}
+.modal p{font-size:13px;color:#8A90A8;margin-bottom:16px;line-height:1.5}
+.modal-btns{display:flex;gap:10px}
+.champ-label{font-size:11px;color:#D6336C;font-weight:700;letter-spacing:.1em;margin:8px 0}
+.warn{color:#E08B6B;font-size:11px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- SETUP -->
+<div id="setup-screen">
+<p class="eyebrow">CNP WOMEN'S 3 PERSON LEAGUE</p>
+<h1>League Setup</h1>
+<p class="sub">4 teams · 3 players each · 4 courts</p>
+<div class="card">
+  <div class="ct">Teams & Rosters</div>
+  <div id="team-setups"></div>
+</div>
+<div class="card">
+  <div class="ct">Bench / Subs (optional)</div>
+  <p style="font-size:11px;color:#8A90A8;margin-bottom:8px">Add extra players available as substitutes. You can also type a sub name directly during a match.</p>
+  <div id="bench-list" class="player-col"></div>
+  <button class="btn-outline" onclick="addBench()">+ Add Bench Player</button>
+</div>
+<div class="card">
+  <button class="btn" onclick="startLeague()">Start League</button>
+</div>
+<p style="text-align:center;font-size:12px;color:#555B70;margin-top:6px">🔗 Syncs to Google Sheets</p>
+</div>
+
+<!-- LEAGUE -->
+<div id="league-screen" style="display:none">
+<p class="eyebrow">CNP WOMEN'S 3 PERSON LEAGUE</p>
+<h1 id="league-title">League</h1>
+<div class="sync-bar" id="sync-bar"></div>
+<div class="tabs">
+  <button class="tab active" id="tab-schedule" onclick="switchTab('schedule')">📅 Schedule</button>
+  <button class="tab" id="tab-standings" onclick="switchTab('standings')">🏆 Standings</button>
+  <button class="tab" id="tab-history" onclick="switchTab('history')">📋 History</button>
+</div>
+<div class="panel active" id="panel-schedule">
+  <div class="card">
+    <div class="week-nav">
+      <button class="wbtn" id="week-prev" onclick="chgWeek(-1)">← Prev</button>
+      <div class="wlbl"><div class="wbig" id="week-label">Week 1</div><div class="wsm" id="week-sub">Round Robin</div></div>
+      <button class="wbtn" id="week-next" onclick="chgWeek(1)">Next →</button>
+    </div>
+    <div id="matches-area"></div>
+  </div>
+</div>
+<div class="panel" id="panel-standings">
+  <div class="card">
+    <div class="ct">League Standings</div>
+    <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Team</th><th>MW</th><th>ML</th><th>GW</th><th>GL</th><th>Diff</th></tr></thead><tbody id="standings-body"></tbody></table></div>
+  </div>
+</div>
+<div class="panel" id="panel-history">
+  <div class="card">
+    <div class="ct">Match History</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+  <button class="btn-outline" style="width:auto;padding:10px 18px" onclick="forceSync()">🔄 Re-sync to Sheets</button>
+  <button class="btn-danger" onclick="confirmEnd()">End League</button>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <h3>⚠️ End League?</h3>
+    <p>This will archive results to Google Sheets and clear all data. Type <strong style="color:#E08B6B">END</strong> to confirm.</p>
+    <input type="text" id="confirm-input" autocomplete="off" placeholder="Type END" style="background:#0A0E1A;border:1px solid #252A3E;border-radius:8px;padding:10px;color:#F4F1E8;font-size:16px;text-align:center;width:100%;margin-bottom:14px;outline:none;text-transform:uppercase">
+    <div class="modal-btns">
+      <button class="btn" style="background:#252A3E;color:#F4F1E8" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="tryEnd()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+var SHEETS_URL="https://script.google.com/macros/s/AKfycbwnDcDvSeCfH-aCo4EEZV-UrPIs0IZINAL6t548Q37LNn00sfb8DArors_lrqG4LI4A6Q/exec";
+var SAVE_KEY="cnp_women3_v1";
+var LEAGUE_NAME="CNP Women's 3 Person League";
+
+// Fixed 3-week round robin (each team plays everyone twice) + week 4 medal round
+var FIXED_SCHEDULE=[
+  {label:"Week 1",date:"Round Robin",type:"regular",matches:[
+    {court:1,home:0,away:1},{court:2,home:2,away:3},{court:3,home:0,away:2},{court:4,home:1,away:3}
+  ]},
+  {label:"Week 2",date:"Round Robin",type:"regular",matches:[
+    {court:1,home:0,away:3},{court:2,home:1,away:2},{court:3,home:1,away:0},{court:4,home:3,away:2}
+  ]},
+  {label:"Week 3",date:"Round Robin",type:"regular",matches:[
+    {court:1,home:2,away:0},{court:2,home:3,away:1},{court:3,home:3,away:0},{court:4,home:2,away:1}
+  ]},
+  {label:"Week 4",date:"Medal Round",type:"medal",matches:[]}
+];
+
+var MEDAL_WEEK=3;
+
+// State
+var teams=[]; // [{name, players:[name,name,name]}]
+var bench=[];
+var scores={}; // "w-m" -> {games:[{winner,ws,ls}x3], lineup:{0:{a:[i,i],b:[i,i]},1:{...}}, subs:{teamIdx:{slotIdx:name}}}
+var currentWeek=0;
+var expandedMatch=null;
+
+// ── Setup ─────────────────────────────────────────────────────────────
+function buildTeamInputs(){
+  var area=document.getElementById('team-setups');
+  area.innerHTML='';
+  for(var i=0;i<4;i++){
+    var block=document.createElement('div');block.className='team-setup';
+    var pc='';
+    for(var j=0;j<3;j++){
+      pc+='<input class="tinp" id="tp-'+i+'-'+j+'" type="text" autocomplete="off" placeholder="Player '+(j+1)+'" style="margin-bottom:6px">';
+    }
+    block.innerHTML='<div class="team-header"><span class="team-num">TEAM '+(i+1)+'</span>'+
+      '<input class="tinp" id="tname-'+i+'" type="text" autocomplete="off" placeholder="Team '+(i+1)+' Name" value="Team '+(i+1)+'"></div>'+
+      '<div class="player-col">'+pc+'</div>';
+    area.appendChild(block);
+  }
+}
+
+function addBench(){
+  var list=document.getElementById('bench-list');
+  var inp=document.createElement('input');
+  inp.className='tinp';inp.type='text';inp.autocomplete='off';inp.placeholder='Bench player name';inp.style.marginBottom='6px';
+  inp.setAttribute('data-bench','1');
+  list.appendChild(inp);
+}
+
+function readTeams(){
+  teams=[];
+  for(var i=0;i<4;i++){
+    var nm=document.getElementById('tname-'+i);
+    var p=[];
+    for(var j=0;j<3;j++){
+      var pel=document.getElementById('tp-'+i+'-'+j);
+      p.push(pel&&pel.value.trim()?pel.value.trim():'Player '+(j+1));
+    }
+    teams.push({name:nm&&nm.value.trim()?nm.value.trim():'Team '+(i+1),players:p});
+  }
+  bench=[];
+  document.querySelectorAll('[data-bench]').forEach(function(el){if(el.value.trim())bench.push(el.value.trim());});
+}
+
+// Get effective roster for a team in a given match (applying subs)
+function rosterFor(key,teamIdx){
+  var sc=scores[key];
+  var base=teams[teamIdx].players.slice();
+  if(sc&&sc.subs&&sc.subs[teamIdx]){
+    Object.keys(sc.subs[teamIdx]).forEach(function(slot){
+      base[parseInt(slot)]=sc.subs[teamIdx][slot];
+    });
+  }
+  return base;
+}
+
+// ── Start ─────────────────────────────────────────────────────────────
+function startLeague(){
+  readTeams();
+  scores={};currentWeek=0;expandedMatch=null;
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('league-screen').style.display='block';
+  showWeek();
+  saveState();
+  syncToSheets(); // pre-load schedule
+}
+
+// ── Week Nav ──────────────────────────────────────────────────────────
+function chgWeek(d){
+  var nw=currentWeek+d;
+  if(nw<0||nw>=FIXED_SCHEDULE.length)return;
+  currentWeek=nw;expandedMatch=null;
+  showWeek();saveState();
+}
+
+function showWeek(){
+  var wk=FIXED_SCHEDULE[currentWeek];
+  document.getElementById('week-label').textContent=wk.label;
+  document.getElementById('week-sub').textContent=wk.date;
+  document.getElementById('week-prev').disabled=currentWeek===0;
+  document.getElementById('week-next').disabled=currentWeek===FIXED_SCHEDULE.length-1;
+  buildMatches();
+}
+
+// ── Matches ───────────────────────────────────────────────────────────
+function buildMatches(){
+  var area=document.getElementById('matches-area');
+  area.innerHTML='';
+  var wk=FIXED_SCHEDULE[currentWeek];
+  if(wk.type==='medal'){buildMedalRound(area);return;}
+  wk.matches.forEach(function(m,mi){
+    area.appendChild(buildMatchCard(currentWeek+'-'+mi,m.home,m.away,m.court,null));
+  });
+}
+
+function buildMatchCard(key,homeTeam,awayTeam,court,labelOverride){
+  var result=getMatchResult(key);
+  var card=document.createElement('div');card.className='match-card';
+  var header=document.createElement('div');header.className='match-header';
+  header.innerHTML='<div class="match-teams"><span class="match-court">'+(labelOverride||'COURT '+court)+'</span>'+
+    teams[homeTeam].name+'<span class="match-vs"> vs </span>'+teams[awayTeam].name+'</div>'+
+    '<div class="match-result '+(result?'':'pending')+'">'+
+    (result?result.aGames+' – '+result.bGames:'▸')+'</div>';
+  header.onclick=(function(k){return function(){toggleMatch(k);};})(key);
+  card.appendChild(header);
+
+  var body=document.createElement('div');body.className='match-body'+(expandedMatch===key?' open':'');body.id='body-'+key;
+
+  // 3 games
+  for(var g=0;g<3;g++){
+    body.appendChild(buildGameBlock(key,g,homeTeam,awayTeam));
+  }
+
+  // Collapsible subs link (small, at bottom)
+  var subToggle=document.createElement('div');
+  subToggle.style.cssText='text-align:center;margin:4px 0 8px';
+  subToggle.innerHTML='<button id="subtgl-'+key+'" style="background:none;border:none;color:#8A90A8;font-size:11px;text-decoration:underline;cursor:pointer">+ Substitutions</button>';
+  body.appendChild(subToggle);
+  var subWrap=document.createElement('div');subWrap.id='subwrap-'+key;subWrap.style.display='none';
+  subWrap.appendChild(buildSubSection(key,homeTeam,awayTeam));
+  body.appendChild(subWrap);
+  setTimeout(function(){
+    var btn=document.getElementById('subtgl-'+key);
+    if(btn)btn.onclick=function(){
+      var w=document.getElementById('subwrap-'+key);
+      var open=w.style.display!=='none';
+      w.style.display=open?'none':'block';
+      btn.textContent=open?'+ Substitutions':'− Hide Substitutions';
+    };
+  },0);
+
+  var sumDiv=document.createElement('div');sumDiv.className='match-summary';sumDiv.id='sum-'+key;
+  sumDiv.innerHTML=getSummaryHTML(key,homeTeam,awayTeam);
+  body.appendChild(sumDiv);
+
+  card.appendChild(body);
+  setTimeout(function(){refreshGame3(key,homeTeam,awayTeam);},0);
+  return card;
+}
+
+function buildSubSection(key,homeTeam,awayTeam){
+  var div=document.createElement('div');div.className='sub-row';
+  div.innerHTML='<div class="sub-title">Swap a player for this match</div>';
+  [homeTeam,awayTeam].forEach(function(ti){
+    var roster=rosterFor(key,ti);
+    for(var s=0;s<3;s++){
+      var line=document.createElement('div');line.className='sub-line';
+      var benchOpts=bench.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join('');
+      line.innerHTML='<label>'+teams[ti].name.substring(0,10)+' P'+(s+1)+'</label>'+
+        '<select id="sub-sel-'+key+'-'+ti+'-'+s+'"><option value="">'+teams[ti].players[s]+' (default)</option>'+benchOpts+'<option value="__type__">Type a name…</option></select>'+
+        '<input id="sub-inp-'+key+'-'+ti+'-'+s+'" type="text" placeholder="sub name" style="display:none">';
+      div.appendChild(line);
+      (function(k,t,slot){
+        setTimeout(function(){
+          var sel=document.getElementById('sub-sel-'+k+'-'+t+'-'+slot);
+          var inp=document.getElementById('sub-inp-'+k+'-'+t+'-'+slot);
+          if(scores[k]&&scores[k].subs&&scores[k].subs[t]&&scores[k].subs[t][slot]!==undefined){
+            var cur=scores[k].subs[t][slot];
+            if(bench.indexOf(cur)>=0){sel.value=cur;}
+            else{sel.value='__type__';inp.style.display='';inp.value=cur;}
+          }
+          sel.addEventListener('change',function(){
+            if(this.value==='__type__'){inp.style.display='';inp.focus();}
+            else{inp.style.display='none';setSub(k,t,slot,this.value,homeTeam,awayTeam);}
+          });
+          inp.addEventListener('input',function(){setSub(k,t,slot,this.value,homeTeam,awayTeam);});
+        },0);
+      })(key,ti,s);
+    }
+  });
+  return div;
+}
+
+function setSub(key,teamIdx,slot,name,homeTeam,awayTeam){
+  if(!scores[key])scores[key]={games:[{},{},{}],lineup:{},subs:{}};
+  if(!scores[key].subs)scores[key].subs={};
+  if(!scores[key].subs[teamIdx])scores[key].subs[teamIdx]={};
+  if(name===''){delete scores[key].subs[teamIdx][slot];}
+  else{scores[key].subs[teamIdx][slot]=name;}
+  // Rebuild lineups display
+  refreshLineupOptions(key,homeTeam,awayTeam);
+  saveState();syncToSheets();
+}
+
+function buildGameBlock(key,gIdx,homeTeam,awayTeam){
+  var sc=scores[key];
+  var gVal=(sc&&sc.games&&sc.games[gIdx])||{};
+  var block=document.createElement('div');block.className='game-block';
+  block.innerHTML='<div class="game-title">Game '+(gIdx+1)+'</div>'+
+    '<div class="lineup-sel" id="lineup-'+key+'-'+gIdx+'"></div>'+
+    '<div class="winner-sel" id="winsel-'+key+'-'+gIdx+'">'+
+    '<button class="wteam-btn" id="wbtn-'+key+'-'+gIdx+'-a" onclick="pickWinner(\''+key+'\','+gIdx+',\'a\','+homeTeam+','+awayTeam+')">'+teams[homeTeam].name+' won</button>'+
+    '<button class="wteam-btn" id="wbtn-'+key+'-'+gIdx+'-b" onclick="pickWinner(\''+key+'\','+gIdx+',\'b\','+homeTeam+','+awayTeam+')">'+teams[awayTeam].name+' won</button>'+
+    '</div>'+
+    '<div class="score-entry" id="scoreent-'+key+'-'+gIdx+'">'+
+    '<div class="score-line"><label>Winning score</label><input class="gsinp" id="gs-'+key+'-'+gIdx+'-w" type="tel" placeholder="0" value="'+(gVal.ws!==undefined?gVal.ws:'')+'"></div>'+
+    '<div class="score-line"><label>Losing score</label><input class="gsinp" id="gs-'+key+'-'+gIdx+'-l" type="tel" placeholder="0" value="'+(gVal.ls!==undefined?gVal.ls:'')+'"></div>'+
+    '</div>';
+  setTimeout(function(){
+    refreshLineupOptions(key,homeTeam,awayTeam);
+    // restore winner selection UI
+    if(gVal.winner){
+      document.getElementById('wbtn-'+key+'-'+gIdx+'-'+gVal.winner).classList.add('sel-'+gVal.winner);
+      document.getElementById('scoreent-'+key+'-'+gIdx).classList.add('show');
+    }
+    attachScoreInputs(key,gIdx,homeTeam,awayTeam);
+  },0);
+  return block;
+}
+
+function buildLineupSelect(key,gIdx,homeTeam,awayTeam){
+  var el=document.getElementById('lineup-'+key+'-'+gIdx);
+  if(!el)return;
+  var hr=rosterFor(key,homeTeam),ar=rosterFor(key,awayTeam);
+  var sc=scores[key];
+  var lu=(sc&&sc.lineup&&sc.lineup[gIdx])||{};
+
+  if(gIdx===2){
+    // Auto-filled from games 1 and 2 — show actual names
+    var trio=computeGame3(key);
+    if(trio){
+      el.innerHTML='<div style="font-size:12px;color:#F4F1E8;font-weight:600">'+hr[trio.h[0]]+' & '+hr[trio.h[1]]+' <span class="vs-lbl" style="font-weight:400">vs</span> '+ar[trio.a[0]]+' & '+ar[trio.a[1]]+'</div>';
+    } else {
+      el.innerHTML='<div class="warn">Pick different pairs in Games 1 &amp; 2 so Game 3 can fill in</div>';
+    }
+    return;
+  }
+
+  // Single dropdown per team listing the 3 possible pairs (no duplicate players possible)
+  var PAIRS=[[0,1],[0,2],[1,2]];
+  function pairIdxOf(play){
+    if(!play)return 0;
+    for(var i=0;i<PAIRS.length;i++){if((PAIRS[i][0]===play[0]&&PAIRS[i][1]===play[1])||(PAIRS[i][0]===play[1]&&PAIRS[i][1]===play[0]))return i;}
+    return 0;
+  }
+  function pairOpts(roster,sel){
+    return PAIRS.map(function(pr,i){return '<option value="'+i+'"'+(sel===i?' selected':'')+'>'+roster[pr[0]]+' & '+roster[pr[1]]+'</option>';}).join('');
+  }
+  // Default: Game 1 -> pair 0 ([0,1]), Game 2 -> pair 1 ([0,2]); so Game 3 resolves to [1,2]
+  var defPair=gIdx===1?1:0;
+  // Persist defaults once so Game 3 can compute immediately
+  if(!lu.h||!lu.a){
+    if(!sc)scores[key]={games:[{},{},{}],lineup:{},subs:{}};
+    if(!scores[key].lineup)scores[key].lineup={};
+    var PAIRS0=[[0,1],[0,2],[1,2]];
+    scores[key].lineup[gIdx]={h:PAIRS0[defPair].slice(),a:PAIRS0[defPair].slice()};
+    lu=scores[key].lineup[gIdx];
+  }
+  var hSel=pairIdxOf(lu.h), aSel=pairIdxOf(lu.a);
+  el.innerHTML='<div style="width:100%;display:flex;gap:4px;align-items:center">'+
+    '<select id="lu-'+key+'-'+gIdx+'-hpair" style="flex:1">'+pairOpts(hr,hSel)+'</select>'+
+    '<span class="vs-lbl">vs</span>'+
+    '<select id="lu-'+key+'-'+gIdx+'-apair" style="flex:1">'+pairOpts(ar,aSel)+'</select>'+
+    '</div>';
+  ['hpair','apair'].forEach(function(r){
+    var s=document.getElementById('lu-'+key+'-'+gIdx+'-'+r);
+    if(s)s.addEventListener('change',function(){saveLineup(key,gIdx,homeTeam,awayTeam);});
+  });
+}
+
+function refreshLineupOptions(key,homeTeam,awayTeam){
+  for(var g=0;g<3;g++) buildLineupSelect(key,g,homeTeam,awayTeam);
+}
+function refreshGame3(key,homeTeam,awayTeam){ buildLineupSelect(key,2,homeTeam,awayTeam); }
+
+function saveLineup(key,gIdx,homeTeam,awayTeam){
+  if(!scores[key])scores[key]={games:[{},{},{}],lineup:{},subs:{}};
+  if(!scores[key].lineup)scores[key].lineup={};
+  var PAIRS=[[0,1],[0,2],[1,2]];
+  var hp=PAIRS[parseInt(gv('lu-'+key+'-'+gIdx+'-hpair'))||0];
+  var ap=PAIRS[parseInt(gv('lu-'+key+'-'+gIdx+'-apair'))||0];
+  scores[key].lineup[gIdx]={h:hp.slice(),a:ap.slice()};
+  refreshGame3(key,homeTeam,awayTeam);
+  saveState();syncToSheets();
+}
+
+function gv(id){var el=document.getElementById(id);return el?el.value:'';}
+
+// Game 3 = the two players who sat out in Games 1 and 2.
+// Valid only if a different player sat in each of the first two games.
+function computeGame3(key){
+  var sc=scores[key];
+  if(!sc||!sc.lineup||!sc.lineup[0]||!sc.lineup[1])return null;
+  function third(l0,l1){
+    var sit0=l0.hSit!==undefined?l0.hSit:null, sit1=l1.hSit!==undefined?l1.hSit:null;
+    return null; // placeholder, replaced below
+  }
+  // Use the stored play arrays: count appearances; those at count 1 play game 3
+  function compute(l0,l1){
+    var count=[0,0,0];
+    [l0[0],l0[1],l1[0],l1[1]].forEach(function(p){count[p]++;});
+    var g3=[];
+    for(var p=0;p<3;p++){if(count[p]===1)g3.push(p);}
+    return g3.length===2?g3:null;
+  }
+  var h=compute(sc.lineup[0].h,sc.lineup[1].h);
+  var a=compute(sc.lineup[0].a,sc.lineup[1].a);
+  if(!h||!a)return null;
+  return {h:h,a:a};
+}
+
+function pickWinner(key,gIdx,side,homeTeam,awayTeam){
+  if(!scores[key])scores[key]={games:[{},{},{}],lineup:{},subs:{}};
+  if(!scores[key].games[gIdx])scores[key].games[gIdx]={};
+  scores[key].games[gIdx].winner=side;
+  document.getElementById('wbtn-'+key+'-'+gIdx+'-a').classList.remove('sel-a');
+  document.getElementById('wbtn-'+key+'-'+gIdx+'-b').classList.remove('sel-b');
+  document.getElementById('wbtn-'+key+'-'+gIdx+'-'+side).classList.add('sel-'+side);
+  document.getElementById('scoreent-'+key+'-'+gIdx).classList.add('show');
+  updateMatchUI(key,homeTeam,awayTeam);
+  saveState();syncToSheets();
+}
+
+function attachScoreInputs(key,gIdx,homeTeam,awayTeam){
+  ['w','l'].forEach(function(which){
+    var el=document.getElementById('gs-'+key+'-'+gIdx+'-'+which);
+    if(!el)return;
+    el.addEventListener('input',function(){
+      if(!scores[key])scores[key]={games:[{},{},{}],lineup:{},subs:{}};
+      if(!scores[key].games[gIdx])scores[key].games[gIdx]={};
+      scores[key].games[gIdx][which==='w'?'ws':'ls']=this.value;
+      updateMatchUI(key,homeTeam,awayTeam);
+      saveState();syncToSheets();
+    });
+  });
+}
+
+function updateMatchUI(key,homeTeam,awayTeam){
+  var sumEl=document.getElementById('sum-'+key);
+  if(sumEl)sumEl.innerHTML=getSummaryHTML(key,homeTeam,awayTeam);
+  var result=getMatchResult(key);
+  var bodyEl=document.getElementById('body-'+key);
+  if(bodyEl){var resEl=bodyEl.previousSibling.querySelector('.match-result');
+    if(resEl){resEl.textContent=result?result.aGames+' – '+result.bGames:'▸';resEl.className='match-result '+(result?'':'pending');}}
+}
+
+function toggleMatch(key){
+  expandedMatch=expandedMatch===key?null:key;
+  document.querySelectorAll('.match-body').forEach(function(el){el.classList.toggle('open',el.id==='body-'+key&&expandedMatch===key);});
+}
+
+// ── Game/Match Logic ──────────────────────────────────────────────────
+function getGameWinner(g){
+  if(!g||!g.winner)return null;
+  if(g.ws===undefined||g.ws===''||g.ls===undefined||g.ls==='')return g.winner; // winner known even before scores
+  return g.winner;
+}
+
+function getMatchResult(key){
+  var sc=scores[key];if(!sc||!sc.games)return null;
+  var aw=0,bw=0,comp=0;
+  for(var g=0;g<3;g++){
+    var w=sc.games[g]&&sc.games[g].winner;
+    if(w==='a'){aw++;comp++;}else if(w==='b'){bw++;comp++;}
+  }
+  if(comp<3)return null;
+  return{aGames:aw,bGames:bw,winner:aw>bw?'a':'b'};
+}
+
+function getSummaryHTML(key,homeTeam,awayTeam){
+  var result=getMatchResult(key);
+  if(!result)return '<span style="color:#555B70">Select winner + scores for all 3 games</span>';
+  var winner=result.winner==='a'?teams[homeTeam].name:teams[awayTeam].name;
+  return '<span class="match-winner">🏆 '+winner+' wins '+result.aGames+' – '+result.bGames+'</span>';
+}
+
+// ── Medal Round ───────────────────────────────────────────────────────
+function buildMedalRound(area){
+  var standings=getStandings();
+  if(standings.filter(function(s){return s.mw+s.ml>0;}).length<4){
+    area.innerHTML='<p class="empty">Complete the regular season to seed the medal round.</p>';return;
+  }
+  var s1=standings[0].idx,s2=standings[1].idx,s3=standings[2].idx,s4=standings[3].idx;
+  var lbl=document.createElement('div');lbl.className='champ-label';lbl.textContent='SEMIFINALS';area.appendChild(lbl);
+  area.appendChild(buildMatchCard(MEDAL_WEEK+'-0',s1,s4,1,'SEMI: #1 vs #4'));
+  area.appendChild(buildMatchCard(MEDAL_WEEK+'-1',s2,s3,2,'SEMI: #2 vs #3'));
+
+  var sf1=getMatchResult(MEDAL_WEEK+'-0'),sf2=getMatchResult(MEDAL_WEEK+'-1');
+  var lbl2=document.createElement('div');lbl2.className='champ-label';lbl2.textContent='MEDAL MATCHES';area.appendChild(lbl2);
+  if(sf1&&sf2){
+    var goldA=sf1.winner==='a'?s1:s4, goldB=sf2.winner==='a'?s2:s3;
+    var bronzeA=sf1.winner==='a'?s4:s1, bronzeB=sf2.winner==='a'?s3:s2;
+    area.appendChild(buildMatchCard(MEDAL_WEEK+'-2',goldA,goldB,1,'🥇 GOLD MEDAL'));
+    area.appendChild(buildMatchCard(MEDAL_WEEK+'-3',bronzeA,bronzeB,2,'🥉 BRONZE MEDAL'));
+  } else {
+    var e=document.createElement('p');e.className='empty';e.textContent='Complete both semifinals to unlock medal matches.';area.appendChild(e);
+  }
+}
+
+function getMedalMatches(){
+  var standings=getStandings();
+  if(standings.filter(function(s){return s.mw+s.ml>0;}).length<4)return [];
+  var s1=standings[0].idx,s2=standings[1].idx,s3=standings[2].idx,s4=standings[3].idx;
+  var matches=[{court:1,home:s1,away:s4,label:'Semi #1v#4'},{court:2,home:s2,away:s3,label:'Semi #2v#3'}];
+  var sf1=getMatchResult(MEDAL_WEEK+'-0'),sf2=getMatchResult(MEDAL_WEEK+'-1');
+  if(sf1&&sf2){
+    var goldA=sf1.winner==='a'?s1:s4,goldB=sf2.winner==='a'?s2:s3;
+    var bronzeA=sf1.winner==='a'?s4:s1,bronzeB=sf2.winner==='a'?s3:s2;
+    matches.push({court:1,home:goldA,away:goldB,label:'Gold Medal'});
+    matches.push({court:2,home:bronzeA,away:bronzeB,label:'Bronze Medal'});
+  }
+  return matches;
+}
+
+function getMedals(){
+  var m=getMedalMatches();
+  if(m.length<4)return null;
+  var goldR=getMatchResult(MEDAL_WEEK+'-2'),bronzeR=getMatchResult(MEDAL_WEEK+'-3');
+  if(!goldR||!bronzeR)return null;
+  var gm=m[2],bm=m[3];
+  return {
+    gold:teams[goldR.winner==='a'?gm.home:gm.away].name,
+    silver:teams[goldR.winner==='a'?gm.away:gm.home].name,
+    bronze:teams[bronzeR.winner==='a'?bm.home:bm.away].name,
+    fourth:teams[bronzeR.winner==='a'?bm.away:bm.home].name
+  };
+}
+
+// ── Standings ─────────────────────────────────────────────────────────
+function getStandings(){
+  var st=teams.map(function(t,i){return{idx:i,name:t.name,mw:0,ml:0,gw:0,gl:0,pd:0};});
+  var h2h={};
+  FIXED_SCHEDULE.forEach(function(wk,wi){
+    if(wk.type==='medal')return;
+    wk.matches.forEach(function(m,mi){
+      var key=wi+'-'+mi;
+      var result=getMatchResult(key);
+      if(!result)return;
+      var sc=scores[key];
+      if(result.winner==='a'){st[m.home].mw++;st[m.away].ml++;h2h[m.home+'-'+m.away]=(h2h[m.home+'-'+m.away]||0)+1;}
+      else{st[m.away].mw++;st[m.home].ml++;h2h[m.away+'-'+m.home]=(h2h[m.away+'-'+m.home]||0)+1;}
+      for(var g=0;g<3;g++){
+        var gm=sc.games[g];if(!gm||!gm.winner)continue;
+        var ws=parseFloat(gm.ws),ls=parseFloat(gm.ls);
+        if(gm.winner==='a'){st[m.home].gw++;st[m.away].gl++;}else{st[m.away].gw++;st[m.home].gl++;}
+        if(!isNaN(ws)&&!isNaN(ls)){
+          var margin=ws-ls;
+          if(gm.winner==='a'){st[m.home].pd+=margin;st[m.away].pd-=margin;}
+          else{st[m.away].pd+=margin;st[m.home].pd-=margin;}
+        }
+      }
+    });
+  });
+  st.sort(function(x,y){
+    if(y.mw!==x.mw)return y.mw-x.mw;
+    var xy=h2h[x.idx+'-'+y.idx]||0,yx=h2h[y.idx+'-'+x.idx]||0;
+    if(xy!==yx)return yx-xy;
+    if(y.gw!==x.gw)return y.gw-x.gw;
+    return y.pd-x.pd;
+  });
+  return st;
+}
+
+function updateStandings(){
+  var tbody=document.getElementById('standings-body');tbody.innerHTML='';
+  getStandings().forEach(function(s,i){
+    var tr=document.createElement('tr');if(i===0)tr.className='leader';
+    var pd=s.pd>0?'+'+s.pd:''+s.pd;
+    tr.innerHTML='<td>'+(i+1)+'</td><td class="tdname">'+s.name+'</td><td>'+s.mw+'</td><td>'+s.ml+'</td><td>'+s.gw+'</td><td>'+s.gl+'</td>'+
+      '<td class="'+(s.pd>0?'dpos':s.pd<0?'dneg':'')+'">'+pd+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ── History ───────────────────────────────────────────────────────────
+function gameNames(key,gIdx,homeTeam,awayTeam){
+  var hr=rosterFor(key,homeTeam),ar=rosterFor(key,awayTeam);
+  var sc=scores[key];
+  if(gIdx===2){
+    var trio=computeGame3(key);
+    if(!trio)return{a:'TBD',b:'TBD'};
+    return{a:hr[trio.h[0]]+' & '+hr[trio.h[1]],b:ar[trio.a[0]]+' & '+ar[trio.a[1]]};
+  }
+  var lu=(sc&&sc.lineup&&sc.lineup[gIdx]);
+  if(!lu)return{a:'—',b:'—'};
+  return{a:hr[lu.h[0]]+' & '+hr[lu.h[1]],b:ar[lu.a[0]]+' & '+ar[lu.a[1]]};
+}
+
+function updateHistory(){
+  var list=document.getElementById('history-list');list.innerHTML='';var any=false;
+  var medals=getMedals();
+  if(medals){
+    var b=document.createElement('div');b.className='medal-banner';
+    b.innerHTML='<div style="font-size:11px;letter-spacing:.14em;color:#FFD700;font-weight:700;margin-bottom:10px">FINAL RESULTS</div>'+
+      '<div style="font-size:16px;font-weight:700;margin-bottom:6px">🥇 '+medals.gold+'</div>'+
+      '<div style="font-size:14px;color:#C8CDD8;margin-bottom:4px">🥈 '+medals.silver+'</div>'+
+      '<div style="font-size:14px;color:#C8CDD8">🥉 '+medals.bronze+'</div>';
+    list.appendChild(b);any=true;
+  }
+  FIXED_SCHEDULE.forEach(function(wk,wi){
+    var matches=wk.type==='medal'?getMedalMatches():wk.matches;
+    matches.forEach(function(m,mi){
+      var key=wi+'-'+mi;
+      var result=getMatchResult(key);
+      if(!result)return;
+      any=true;
+      var sc=scores[key];
+      var gamesHTML='';
+      var tA=teams[m.home].name, tB=teams[m.away].name;
+      for(var g=0;g<3;g++){
+        var gm=sc.games[g];if(!gm||!gm.winner)continue;
+        var gn=gameNames(key,g,m.home,m.away);
+        var aScore,bScore;
+        if(gm.winner==='a'){aScore=gm.ws;bScore=gm.ls;}else{aScore=gm.ls;bScore=gm.ws;}
+        gamesHTML+='<div class="hgame">Game '+(g+1)+': '+tA+' ('+gn.a+') '+(aScore!==undefined?aScore:'')+'–'+(bScore!==undefined?bScore:'')+' '+tB+' ('+gn.b+')</div>';
+      }
+      var winner=result.winner==='a'?teams[m.home].name:teams[m.away].name;
+      var d=document.createElement('div');d.className='hist-match';
+      d.innerHTML='<div class="hweek">'+wk.label+(m.label?' · '+m.label:' · Court '+m.court)+'</div>'+
+        '<div class="hteams">'+teams[m.home].name+' vs '+teams[m.away].name+'</div>'+gamesHTML+
+        '<div class="hwinner">🏆 '+winner+' wins '+result.aGames+'–'+result.bGames+'</div>';
+      list.appendChild(d);
+    });
+  });
+  if(!any)list.innerHTML='<p class="empty">No completed matches yet.</p>';
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+function switchTab(id){
+  ['schedule','standings','history'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+    document.getElementById('panel-'+t).classList.toggle('active',t===id);
+  });
+  if(id==='standings')updateStandings();
+  if(id==='history')updateHistory();
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────
+function confirmEnd(){document.getElementById('confirm-input').value='';document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function tryEnd(){var v=document.getElementById('confirm-input').value.trim().toUpperCase();if(v!=='END'){alert('Type END to confirm.');return;}endLeague();}
+function endLeague(){
+  closeModal();
+  try{archiveToSheets();}catch(e){}
+  scores={};currentWeek=0;expandedMatch=null;teams=[];bench=[];
+  document.getElementById('league-screen').style.display='none';
+  document.getElementById('setup-screen').style.display='block';
+  buildTeamInputs();
+  document.getElementById('bench-list').innerHTML='';
+  clearSave();
+}
+
+// ── Google Sheets ─────────────────────────────────────────────────────
+function buildScheduleData(){
+  var sched=[];
+  FIXED_SCHEDULE.forEach(function(wk,wi){
+    var matches=wk.type==='medal'?getMedalMatches():wk.matches;
+    matches.forEach(function(m){
+      sched.push({week:wk.label,court:m.court,label:m.label||('Court '+m.court),
+        teamA:teams[m.home]?teams[m.home].name:'',teamB:teams[m.away]?teams[m.away].name:''});
+    });
+  });
+  return sched;
+}
+
+function buildHistoryData(){
+  var history=[];
+  FIXED_SCHEDULE.forEach(function(wk,wi){
+    var matches=wk.type==='medal'?getMedalMatches():wk.matches;
+    matches.forEach(function(m,mi){
+      var key=wi+'-'+mi;
+      var result=getMatchResult(key);
+      if(!result)return;
+      var sc=scores[key];
+      var gamesArr=[];
+      for(var g=0;g<3;g++){
+        var gm=sc.games[g]||{};
+        var gn=gameNames(key,g,m.home,m.away);
+        var a,b;
+        if(gm.winner==='a'){a=gm.ws;b=gm.ls;}else if(gm.winner==='b'){a=gm.ls;b=gm.ws;}else{a='';b='';}
+        gamesArr.push({label:'Game '+(g+1),a:(a!==undefined?a:''),b:(b!==undefined?b:''),namesA:gn.a,namesB:gn.b});
+      }
+      history.push({week:wk.label,court:m.court,label:m.label||('Court '+m.court),
+        teamA:teams[m.home].name,teamB:teams[m.away].name,
+        result:result.aGames+'-'+result.bGames,
+        winner:result.winner==='a'?teams[m.home].name:teams[m.away].name,
+        teamAName:teams[m.home].name,teamBName:teams[m.away].name,
+        gamesArr:gamesArr});
+    });
+  });
+  return history;
+}
+
+function buildStandingsData(){
+  return getStandings().map(function(s,i){return{rank:i+1,name:s.name,matchWins:s.mw,matchLosses:s.ml,gameWins:s.gw,gameLosses:s.gl,pointDiff:s.pd};});
+}
+
+function payload(extra){
+  var p={league:LEAGUE_NAME,schedule:buildScheduleData(),history:buildHistoryData(),rankings:buildStandingsData(),medals:getMedals()};
+  if(extra)for(var k in extra)p[k]=extra[k];
+  return p;
+}
+
+function syncToSheets(){
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload())})
+    .then(function(){showSync('ok');}).catch(function(){showSync('err');});
+}
+
+function forceSync(){
+  var el=document.getElementById('sync-bar');el.textContent='Syncing…';el.className='sync-bar';
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload())})
+    .then(function(){el.textContent='✓ Synced to Google Sheets';el.className='sync-bar sync-ok';setTimeout(function(){el.textContent='';el.className='sync-bar';},4000);})
+    .catch(function(){el.textContent='⚠ Sync failed — try again';el.className='sync-bar sync-err';setTimeout(function(){el.textContent='';el.className='sync-bar';},4000);});
+}
+
+function archiveToSheets(){
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload({archive:true}))}).catch(function(){});
+}
+
+function showSync(s){var el=document.getElementById('sync-bar');el.textContent=s==='ok'?'✓ Synced':'⚠ Sync failed';el.className='sync-bar '+(s==='ok'?'sync-ok':'sync-err');setTimeout(function(){el.textContent='';el.className='sync-bar';},2500);}
+
+// ── Save/Load ─────────────────────────────────────────────────────────
+function saveState(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({teams:teams,bench:bench,scores:scores,currentWeek:currentWeek}));}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function loadState(){
+  try{var raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;var s=JSON.parse(raw);
+  if(!s.teams)return false;teams=s.teams;bench=s.bench||[];scores=s.scores||{};currentWeek=s.currentWeek||0;return true;}catch(e){return false;}
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+buildTeamInputs();
+if(loadState()){
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('league-screen').style.display='block';
+  showWeek();
+}
+</script>
+</body>
+</html>
